@@ -1,0 +1,111 @@
+{
+  "tracks": {
+    "href": "https://api.spotify.com/v1/search?query=hearts+on+fire&type=track&locale=en-US%2Cen%3Bq%3D0.5&offset=0&limit=20",
+    "items": [
+      {
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/2o18h28enlHxj887tATc58"
+            },
+            "href": "https://api.spotify.com/v1/artists/2o18h28enlHxj887tATc58",
+            "id": "2o18h28enlHxj887tATc58",
+            "name": "HammerFall",
+            "type": "artist",
+            "uri": "spotify:artist:2o18h28enlHxj887tATc58"
+          }
+        ],
+        "disc_number": 1,
+        "duration_ms": 231386,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "DED830264702"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/0eV3PB3T0OxW4feG1DlOjQ"
+        },
+        "href": "https://api.spotify.com/v1/tracks/0eV3PB3T0OxW4feG1DlOjQ",
+        "id": "0eV3PB3T0OxW4feG1DlOjQ",
+        "is_local": false,
+        "name": "Hearts on Fire",
+        "popularity": 64,
+        "preview_url": "https://p.scdn.co/mp3-preview/4e7bab3896b9abde69f7237c6e1857096442419b?cid=774b29d4f13844c495f206cafdad9c86",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:0eV3PB3T0OxW4feG1DlOjQ"
+      },
+      {
+        "album": {
+          "album_type": "compilation",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of"
+              },
+              "href": "https://api.spotify.com/v1/artists/0LyfQWJT6nXafLPZqxe9Of",
+              "id": "0LyfQWJT6nXafLPZqxe9Of",
+              "name": "Various Artists",
+              "type": "artist",
+              "uri": "spotify:artist:0LyfQWJT6nXafLPZqxe9Of"
+            }
+          ],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/3t3BbpFJiGcXl4jI5CRLLA"
+          },
+          "href": "https://api.spotify.com/v1/albums/3t3BbpFJiGcXl4jI5CRLLA",
+          "id": "3t3BbpFJiGcXl4jI5CRLLA",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b273f4a2ccbe20d6d52f16816812",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e02f4a2ccbe20d6d52f16816812",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d00004851f4a2ccbe20d6d52f16816812",
+              "width": 64
+            }
+          ],
+          "name": "Rocky IV",
+          "release_date": "1985",
+          "release_date_precision": "year",
+          "total_tracks": 11,
+          "type": "album",
+          "uri": "spotify:album:3t3BbpFJiGcXl4jI5CRLLA"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0fPK3TAseRcy6sAS8U8pEw"
+            },
+            "href": "https://api.spotify.com/v1/artists/0fPK3TAseRcy6sAS8U8pEw",
+            "id": "0fPK3TAseRcy6sAS8U8pEw",
+            "name": "John Cafferty",
+            "type": "artist",
+            "uri": "spotify:artist:0fPK3TAseRcy6sAS8U8pEw"
+          }
+        ],
+        "disc_number": 1,
+        "duration_ms": 252920,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "USVR10200061"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/5vI0C3TDTxySR6Oq8NWjE0"
+        },
+        "href": "https://api.spotify.com/v1/tracks/5vI0C3TDTxySR6Oq8NWjE0",
+        "id": "5vI0C3TDTxySR6Oq8NWjE0",
+        "is_local": false,
+        "name": "Hearts On Fire - From \"Rocky IV\" Soundtrack",
+        "popularity": 63,
+        "preview_url": "https://p.scdn.co/mp3-preview/d599b1595083c2c1d9ca3bb4e54875066a5db8c2?cid=774b29d4f13844c495f206cafdad9c86",
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:5vI0C3TDTxySR6Oq8NWjE0"
+      }
