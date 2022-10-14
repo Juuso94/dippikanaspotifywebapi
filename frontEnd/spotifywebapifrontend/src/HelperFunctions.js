@@ -1,15 +1,8 @@
 export function addSongToQueue(id) {
-  const queueApi = "/addToQueue"
+  const queueApi = "addToQueue"
   const queryParam = encodeURI("?songURI=" + id)
-  fetch(queueApi + queryParam)
+  fetch(backendURI + queueApi + queryParam)
     .then(console.log("Song "+ id + " added to que"))
 }
 
-let timer;
-
-export function setTimer(timedFunction, timer) {
-  if (timer !== null) {
-    clearTimeout(timer)
-  }
-  timer = setTimeout(timedFunction, timer)
-}
+export const backendURI = process.env.REACT_APP_backendURI

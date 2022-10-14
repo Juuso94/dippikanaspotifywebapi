@@ -6,9 +6,13 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.*;
@@ -16,53 +20,48 @@ import org.springframework.web.util.*;
 import com.dippikana.spotifywebapi.models.TokenResponse;
 import com.dippikana.spotifywebapi.services.Utilities;
 
+@Component("utilities")
 public class Utilities {
-  private static String accessToken = "";
-	private static String refreshToken = "";
-	private static Timestamp expireTime = new Timestamp(0);
 
-	// Move to conf
-	private static final String spotifyClientId = "";
-	private static final String spotifyClientSecret = "";
+  private String accessToken = "";
+	private String refreshToken = "";
+	private Timestamp expireTime = new Timestamp(0);
 
-	public static String getClientId(){
-		return spotifyClientId;
-	}
+	@Value("${spotify.client_id}")
+	private String client_id;
+	@Value("${spotify.client_secret]")
+	private String client_secret;
 
-	public static String getClientSecret(){
-		return spotifyClientSecret;
-	}
-
-	public static String getAccessToken() {
+	public String getAccessToken() {
 		return accessToken;
 	}
 
-	public static String getRefreshToken() {
+	public String getRefreshToken() {
 		return refreshToken;
 	}
 
-	public static void setAccessToken(String newAccessToken) {
+	public void setAccessToken(String newAccessToken) {
 		accessToken = newAccessToken;
 	}
 
-	public static void setRefreshToken(String newRefreshToken) {
+	public void setRefreshToken(String newRefreshToken) {
 		refreshToken = newRefreshToken;
 	}
 
-	public static Timestamp getExpireTime() {
+	public Timestamp getExpireTime() {
 		return expireTime;
 	}
 
-	public static void setExpireTime(Long newExpireTime) {
+	public void setExpireTime(Long newExpireTime) {
 		expireTime.setTime(newExpireTime);;
 	}
 
-  public static boolean isTokenValid() {
+  public boolean isTokenValid() {
     Timestamp now = Timestamp.from(Instant.now());	
     return (!accessToken.isBlank() && expireTime.after(now));
   }
 
-	public static boolean refreshAuthenticationToken() {
+	public boolean refreshAuthenticationToken() {
 
 		if(refreshToken.isEmpty()) { 
 			return false;
@@ -71,7 +70,7 @@ public class Utilities {
 		Timestamp now = Timestamp.from(Instant.now());
 
 		MultiValueMap<String, String> formValues = new LinkedMultiValueMap<String, String>();
-			String auth = spotifyClientId + ":" + spotifyClientSecret;
+			String auth = client_id + ":" + client_secret;
 			String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
 
 			formValues.add("refresh_token", refreshToken);
@@ -88,7 +87,7 @@ public class Utilities {
 		TokenResponse response = new RestTemplate().postForObject(spotifyTokenUrl, entity, TokenResponse.class);
 
 		setAccessToken(response.access_token);
-		Utilities.setExpireTime(now.getTime() + (response.expires_in * 1000));
+		setExpireTime(now.getTime() + (response.expires_in * 1000));
 		return true;
 	}
 }

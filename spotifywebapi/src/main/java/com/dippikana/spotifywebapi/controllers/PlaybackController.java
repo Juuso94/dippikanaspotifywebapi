@@ -11,12 +11,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.*;
 import org.springframework.web.bind.annotation.*;
@@ -24,18 +26,22 @@ import org.springframework.web.bind.annotation.*;
 import com.dippikana.spotifywebapi.models.PlaybackData;
 import com.dippikana.spotifywebapi.services.Utilities;
 
+@Component
 @RestController
 //@RequestMapping("/api")
 public class PlaybackController {
 
   private String apiUrl = "https://api.spotify.com/v1";
 
+	@Autowired
+	private Utilities utilities;
+
   @GetMapping("/currentlyPlaying")
 		public ResponseEntity<Object> fetchCurrentlyPlaying() {
 
-			if(!Utilities.isTokenValid()) {
+			if(!utilities.isTokenValid()) {
 
-				if(!Utilities.refreshAuthenticationToken()) {
+				if(!utilities.refreshAuthenticationToken()) {
 					return new ResponseEntity<Object>("Application is not logged in", HttpStatus.BAD_REQUEST);
 				}
 			}
@@ -45,27 +51,31 @@ public class PlaybackController {
 
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.setBearerAuth(Utilities.getAccessToken());
+			headers.setBearerAuth(utilities.getAccessToken());
 
 			HttpEntity entity = new HttpEntity<>(headers);
 
 			ResponseEntity<PlaybackData> response = new RestTemplate().exchange(playerURI, HttpMethod.GET, entity, PlaybackData.class);
-
-			return new ResponseEntity<Object>(response.getBody(), HttpStatus.OK);
+			if(response.getStatusCodeValue() == 204) {
+				return new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+			}
+			else {
+				return new ResponseEntity<Object>(response.getBody(), HttpStatus.OK);
+			}
 		}
 
 		@GetMapping("/startPlayback")
 		public ResponseEntity<Object> resumePlayback(@RequestParam(required = false) String songURI) {
 			String apiLocation = "/me/player/play";
 
-			if(!Utilities.isTokenValid()) {
-				Utilities.refreshAuthenticationToken();
+			if(!utilities.isTokenValid()) {
+				utilities.refreshAuthenticationToken();
 			}
 
 			URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation).build().toUri();
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.setBearerAuth(Utilities.getAccessToken());
+			headers.setBearerAuth(utilities.getAccessToken());
 
 			HttpEntity<Object> entity;
 
@@ -88,15 +98,15 @@ public class PlaybackController {
 		public ResponseEntity<Object> stopPlayback() {
 			String apiLocation = "/me/player/pause";
 
-			if(!Utilities.isTokenValid()) {
-				Utilities.refreshAuthenticationToken();
+			if(!utilities.isTokenValid()) {
+				utilities.refreshAuthenticationToken();
 			}
 
 			URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation).build().toUri();
 
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.setBearerAuth(Utilities.getAccessToken());
+			headers.setBearerAuth(utilities.getAccessToken());
 
 			HttpEntity entity = new HttpEntity<>(null, headers);
 
@@ -113,8 +123,8 @@ public class PlaybackController {
 		public ResponseEntity<Object> addToQueue(@RequestParam(name = "songURI") String queryString) {
 			String apiLocation = "/me/player/queue";
 
-			if(!Utilities.isTokenValid()) {
-				Utilities.refreshAuthenticationToken();
+			if(!utilities.isTokenValid()) {
+				utilities.refreshAuthenticationToken();
 			}
 
 			URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation)
@@ -123,7 +133,7 @@ public class PlaybackController {
 
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.setBearerAuth(Utilities.getAccessToken());
+			headers.setBearerAuth(utilities.getAccessToken());
 
 			HttpEntity entity = new HttpEntity<>(null, headers);
 

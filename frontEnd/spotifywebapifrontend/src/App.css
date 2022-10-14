@@ -1,35 +1,6 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
 
 .FrontPage {
-  background-color: #61dafb;
+  background-color: #303030;
   width: 100%;
   margin: auto;
 }
@@ -38,10 +9,11 @@
   background-color: #446068;
   display: block;
   margin: auto;
-  width: 50%;
+  width: 100%;
   text-align: center;
   height: 50px;
-  margin-bottom: 20px;
+  position: fixed;
+  bottom: 0px;
 }
 
 .Player button{
@@ -53,7 +25,7 @@
 }
 
 .SearchBar {
-  width: 40%;
+  width: 75%;
   margin: auto;
   text-align: center;
   height: 25px;
@@ -66,21 +38,16 @@
   text-align: center;
 }
 
+.ButtonGroup {
+  background-color: #7caf2a;
+  width: 100%;
+}
+
 .ButtonGroup button {
-  background-color: #04AA6D; /* Green background */
-  border: 1px solid green; /* Green border */
-  color: white; /* White text */
+  border: 1px solid rgb(0, 0, 0); /* Green border */
+  color: rgb(15, 14, 14); /* White text */
   padding: 10px 24px; /* Some padding */
   cursor: pointer; /* Pointer/hand icon */
   width: 100%; /* Set a width if needed */
   display: block; /* Make the buttons appear below each other */
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }

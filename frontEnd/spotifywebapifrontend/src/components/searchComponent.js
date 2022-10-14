@@ -1,19 +1,17 @@
 import '../App.css';
 import React, { Component } from 'react';
-import { confirmAlert } from 'react-confirm-alert';
-import {addSongToQueue} from "../HelperFunctions.js"
-import {PlaybackController} from "./playbackController"
+import {addSongToQueue, backendURI} from "../HelperFunctions.js"
 
 class SearchField extends Component {
   constructor() {
     super()
     this.playbackRef = React.createRef()
     this.state = {
-      songs: []
+      songs: [],
+      searchValue: ""
     }
   }
-  spotifyApi = "https://api.spotify.com/v1"
-  searchApi = "/search"
+  searchApi = "search"
 
   componentDidUpdate() {
     console.log(this.state)
@@ -23,8 +21,12 @@ class SearchField extends Component {
 
     const searchQuery = encodeURI("?q=" + queryParam)
 
-    if( queryParam != "") {
-      fetch(this.searchApi + searchQuery)
+    this.setState({
+      searchValue: queryParam
+    })
+
+    if( queryParam !== "") {
+      fetch(backendURI + this.searchApi + searchQuery)
         .then(response => response.json())
         .then(jsonRes => {
           console.log(jsonRes.tracks.items)
@@ -35,21 +37,31 @@ class SearchField extends Component {
     }
     else {
       this.setState({
-        songs: []
+        songs: [],
+        searchValue: queryParam
       })
-    }
-    
+    } 
+  }
+
+  addSongToQueue =(id) => {
+    const queueApi = "addToQueue"
+    const queryParam = encodeURI("?songURI=" + id)
+    fetch(backendURI + queueApi + queryParam)
+    this.setState({
+      songs: [],
+      searchValue: ""
+    })
   }
 
   render() {
     let songButtons = this.state.songs.map( song => {
-      let props = {songInfo: song, onClick: addSongToQueue}
+      let props = {songInfo: song, onClick: this.addSongToQueue}
       return SongButton(props)
     })
     console.log(songButtons)
     return (
       <div className="SearchBar">
-        <input type = "text" id = "queryParam" name = "queryParam" placeholder='Search for artists or songs'
+        <input type = "text" value={this.state.searchValue} id = "queryParam" name = "queryParam" placeholder='Search for artists or songs'
         onChange={value => this.handleSearch(value.target.value)}>
         </input>
         <div className="ButtonGroup">
