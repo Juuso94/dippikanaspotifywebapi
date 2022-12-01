@@ -45,7 +45,7 @@
           <directory>src/main/resources</directory>
           <filtering>true</filtering>
       </resource>
-  </resources>
+    </resources>
     <plugins> 
       <plugin> 
         <groupId>org.springframework.boot</groupId>  
@@ -61,7 +61,7 @@
           <resourceGroup>SpotifyWebApplication</resourceGroup>
           <appName>dkspotify</appName>
           <pricingTier>B1</pricingTier>
-          <region>centralus</region>
+          <region>northeurope</region>
           <runtime>
             <os>Linux</os>
             <javaVersion>Java 17</javaVersion>

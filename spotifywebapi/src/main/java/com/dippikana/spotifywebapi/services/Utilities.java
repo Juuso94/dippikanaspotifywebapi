@@ -11,7 +11,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -29,7 +31,7 @@ public class Utilities {
 
 	@Value("${spotify.client_id}")
 	private String client_id;
-	@Value("${spotify.client_secret]")
+	@Value("${spotify.client_secret}")
 	private String client_secret;
 
 	public String getAccessToken() {
@@ -57,13 +59,13 @@ public class Utilities {
 	}
 
   public boolean isTokenValid() {
-    Timestamp now = Timestamp.from(Instant.now());	
+    Timestamp now = Timestamp.from(Instant.now());
     return (!accessToken.isBlank() && expireTime.after(now));
   }
 
 	public boolean refreshAuthenticationToken() {
 
-		if(refreshToken.isEmpty()) { 
+		if(refreshToken.isEmpty()) {
 			return false;
 		}
 
@@ -84,10 +86,21 @@ public class Utilities {
 
 		HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<MultiValueMap<String, String>>(formValues, headers);
 
-		TokenResponse response = new RestTemplate().postForObject(spotifyTokenUrl, entity, TokenResponse.class);
+		ResponseEntity<TokenResponse> response = new RestTemplate().postForEntity(spotifyTokenUrl, entity, TokenResponse.class);
 
-		setAccessToken(response.access_token);
-		setExpireTime(now.getTime() + (response.expires_in * 1000));
-		return true;
+		if(response.getStatusCodeValue() == 200) {
+			System.out.println("Refreshed token");
+			TokenResponse body = response.getBody();
+			setAccessToken(body.access_token);
+			setExpireTime(now.getTime() + (body.expires_in * 1000));
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public ResponseEntity<Object> createErrorResponse(HttpStatus statusCode, String message) {
+		return new ResponseEntity<Object>(message, statusCode);
 	}
 }

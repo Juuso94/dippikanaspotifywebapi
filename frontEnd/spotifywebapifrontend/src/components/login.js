@@ -24,7 +24,13 @@ class SpotifyLogin extends Component {
     fetch(backendURI + "login" + queryParam)
       .then((response) => response.text())
       .then(response => {
-        window.location.assign(response)
+        if(response === "vitun pelle kuole") {
+          window.alert("Kuopion yliopistollinen sairaala")
+        }
+        else {
+          window.location.assign(response)
+        }
+        
       })
   }
   logout = () => {

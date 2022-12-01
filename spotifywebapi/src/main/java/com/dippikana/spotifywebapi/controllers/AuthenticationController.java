@@ -31,7 +31,7 @@ import com.dippikana.spotifywebapi.services.Utilities;
 @RestController
 //@RequestMapping("/admin")
 public class AuthenticationController {
-	
+
 	@Autowired
 	private Utilities utilities;
 
@@ -58,13 +58,9 @@ public class AuthenticationController {
   @GetMapping("/login")
 	public String loginToSpotify(@RequestParam(value = "kekW", defaultValue = "nicenice")String passu) {
 
-		System.out.println(passu);
-		System.out.println(passu.equalsIgnoreCase(tymapassu));
-
 		if(!passu.equals(tymapassu)) {
 			return "vitun pelle kuole";
 		}
-
     String permissionScope = "streaming user-read-playback-state";
 		String spotifyLoginUrl = "https://accounts.spotify.com/authorize/";
 		String fullUrl = UriComponentsBuilder.fromUriString(spotifyLoginUrl).
@@ -72,7 +68,7 @@ public class AuthenticationController {
 		queryParam("client_id", client_id).
 		queryParam("redirect_uri", callback).
 		queryParam("response_type", "code").build().toUriString();
-		
+
 		return fullUrl;
 	}
 
@@ -81,41 +77,45 @@ public class AuthenticationController {
 
 		Timestamp now = Timestamp.from(Instant.now());
 
-		if (!utilities.isTokenValid()) {
-			MultiValueMap<String, String> formValues = new LinkedMultiValueMap<String, String>();
-			String auth = client_id + ":" + client_secret;
-			String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
+		MultiValueMap<String, String> formValues = new LinkedMultiValueMap<String, String>();
+		String auth = client_id + ":" + client_secret;
+		String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
 
-			formValues.add("code", code);
-			formValues.add("redirect_uri", callback);
-			formValues.add("grant_type", "authorization_code");
+		formValues.add("code", code);
+		formValues.add("redirect_uri", callback);
+		formValues.add("grant_type", "authorization_code");
 
-			URI spotifyTokenUrl = UriComponentsBuilder.fromUriString("https://accounts.spotify.com/api/token").build().toUri();
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-			headers.setBasicAuth(encodedAuth);
+		URI spotifyTokenUrl = UriComponentsBuilder.fromUriString("https://accounts.spotify.com/api/token").build().toUri();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		headers.setBasicAuth(encodedAuth);
 
-			HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<MultiValueMap<String, String>>(formValues, headers);
+		HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<MultiValueMap<String, String>>(formValues, headers);
 
-			TokenResponse response = new RestTemplate().postForObject(spotifyTokenUrl, entity, TokenResponse.class);
+		ResponseEntity<TokenResponse> response = new RestTemplate().postForEntity(spotifyTokenUrl, entity, TokenResponse.class);
+		TokenResponse resBody = response.getBody();
 
-			utilities.setAccessToken(response.access_token);
-			utilities.setRefreshToken(response.refresh_token);
-			utilities.setExpireTime(now.getTime() + (response.expires_in * 1000));
+		if(response.getStatusCodeValue() == 200) {
+			utilities.setAccessToken(resBody.access_token);
+			utilities.setRefreshToken(resBody.refresh_token);
+			utilities.setExpireTime(now.getTime() + (resBody.expires_in * 1000));
 
+			return new RedirectView(frontendURI);
+		}
+		else {
+			return new RedirectView(frontendURI + "admin");
 		}
 
-		return new RedirectView(frontendURI);		
 	}
 
 	@GetMapping("/checkToken")
   public ResponseEntity<Object> checkTokenValidity() {
-	
+
     if(utilities.isTokenValid()) {
       return new ResponseEntity<Object>(null, HttpStatus.OK);
     }
     else {
-      return new ResponseEntity<Object>(null, HttpStatus.NOT_FOUND);
+      return utilities.createErrorResponse(HttpStatus.NOT_FOUND, "Application is not logged in.");
     }
   }
 
@@ -126,8 +126,5 @@ public class AuthenticationController {
 		utilities.setExpireTime(Long.valueOf(0));
 
     return new ResponseEntity<Object>(null, HttpStatus.OK);
-    
   }
-
-	
 }

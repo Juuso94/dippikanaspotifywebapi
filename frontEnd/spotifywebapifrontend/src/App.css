@@ -1,8 +1,24 @@
 
 .FrontPage {
-  background-color: #303030;
+  background-color: #3d3d3d;
+  min-width: 100vh;
+  min-height: 100vh;
+}
+
+.Navbar{
+  height: 50px;
   width: 100%;
-  margin: auto;
+  top: 0px;
+  text-align: center;
+  display: inline-block;
+}
+
+.Navbar button{
+  background-color: #7caf2a;
+  width: 25%;
+  cursor: pointer; /* Pointer/hand icon */
+  height: auto;
+  display: inline;
 }
 
 .Player {
@@ -11,7 +27,7 @@
   margin: auto;
   width: 100%;
   text-align: center;
-  height: 50px;
+  height: 75px;
   position: fixed;
   bottom: 0px;
 }
@@ -20,6 +36,7 @@
   background-color: #7caf2a;
   display: block; /* Make the buttons appear below each other */
   margin: auto;
+  margin-top: 5px;
   cursor: pointer; /* Pointer/hand icon */
   height: auto;
 }
@@ -28,12 +45,10 @@
   width: 75%;
   margin: auto;
   text-align: center;
-  height: 25px;
 }
 
 .SearchBar input{
   width: 100%;
-  margin: auto;
   height: 20px;
   text-align: center;
 }

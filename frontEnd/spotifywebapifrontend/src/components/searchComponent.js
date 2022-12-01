@@ -27,26 +27,46 @@ class SearchField extends Component {
 
     if( queryParam !== "") {
       fetch(backendURI + this.searchApi + searchQuery)
-        .then(response => response.json())
-        .then(jsonRes => {
-          console.log(jsonRes.tracks.items)
-          this.setState({
-            songs: jsonRes.tracks.items.map(song => song)
-          })
-      });
+        .then(response =>{
+          if(response.status == 200) {
+            response.json()
+            .then(jsonRes => {
+              console.log(jsonRes.tracks.items)
+              this.setState({
+                songs: jsonRes.tracks.items.map(song => song)
+              })
+            });
+          }
+          else {
+            response.text()
+            .then(error => {
+              console.log(error)
+              this.setState({songs: []})
+            })
+
+          }
+
+        })
+
     }
     else {
       this.setState({
         songs: [],
         searchValue: queryParam
       })
-    } 
+    }
   }
 
   addSongToQueue =(id) => {
     const queueApi = "addToQueue"
     const queryParam = encodeURI("?songURI=" + id)
     fetch(backendURI + queueApi + queryParam)
+      .then(response => {
+        if(response.status === 400) {
+          response.text()
+            .then(error => console.log(error))
+        }
+      })
     this.setState({
       songs: [],
       searchValue: ""
@@ -58,9 +78,9 @@ class SearchField extends Component {
       let props = {songInfo: song, onClick: this.addSongToQueue}
       return SongButton(props)
     })
-    console.log(songButtons)
     return (
       <div className="SearchBar">
+        <h1 style={{color: 'white'}}>Hae biisejä </h1>
         <input type = "text" value={this.state.searchValue} id = "queryParam" name = "queryParam" placeholder='Search for artists or songs'
         onChange={value => this.handleSearch(value.target.value)}>
         </input>
@@ -69,7 +89,7 @@ class SearchField extends Component {
         </div>
       </div>
     )
-    
+
   }
 }
 

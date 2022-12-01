@@ -35,10 +35,12 @@ public class SearchController {
   private String apiUrl = "https://api.spotify.com/v1";
 
   @GetMapping("/search")
-		public ResponseEntity<SearchResult> searchSongs(@RequestParam(name = "q") String queryString) {
+		public ResponseEntity<Object> searchSongs(@RequestParam(name = "q") String queryString) {
 
 			if(!utilities.isTokenValid()) {
-				utilities.refreshAuthenticationToken();
+				if(!utilities.refreshAuthenticationToken()) {
+					return new ResponseEntity<Object>("Something went wrong while refreshing the accesstoken", HttpStatus.BAD_REQUEST);
+				}
 			}
 
 			String apiLocation = "/search";
@@ -51,9 +53,21 @@ public class SearchController {
 			headers.setBearerAuth(utilities.getAccessToken());
 
 			HttpEntity entity = new HttpEntity<>(headers);
+			ResponseEntity<SearchResult> response;
 
-			ResponseEntity<SearchResult> response = new RestTemplate().exchange(playerURI, HttpMethod.GET, entity, SearchResult.class);
-
-			return new ResponseEntity<SearchResult>(response.getBody(), HttpStatus.OK);
+			try {
+				response = new RestTemplate().exchange(playerURI, HttpMethod.GET, entity, SearchResult.class);
+			}
+			catch (Exception e) {
+				response = null;
+			}
+			
+			
+			if( response!= null && response.getStatusCodeValue() == 200) {
+				return new ResponseEntity<Object>(response.getBody(), HttpStatus.OK);
+			}	
+			else {
+				return utilities.createErrorResponse(HttpStatus.BAD_REQUEST, "Something went wrong with search");
+			}
 		}
 }

@@ -1,22 +1,22 @@
 import '../App.css';
 import React, { Component } from 'react';
-import {backendURI} from "../HelperFunctions.js"
+import {backendURI, msTominutes} from "../HelperFunctions.js"
 
 class PlaybackController extends Component {
   constructor() {
     super();
-    this.playbackRef = React.createRef()
     this.state = {
       song: {
         name: null,
         artists: [],
         id: null,
         is_playing : false,
-        time_left: null
+        duration_ms: null,
+        progress_ms: null,
       },
       disabled: false
     }
-    
+
   }
 
   componentDidMount() {
@@ -35,7 +35,21 @@ class PlaybackController extends Component {
             artists: [],
             id: null,
             is_playing : false,
-            time_left: null
+            duration_ms: null,
+            progress_ms: null,
+          },
+          disabled: false
+        })
+      }
+      else if (response.status === 400) {
+        this.setState({
+          song: {
+            name: null,
+            artists: [],
+            id: null,
+            is_playing : false,
+            duration_ms: null,
+            progress_ms: null,
           },
           disabled: false
         })
@@ -43,32 +57,22 @@ class PlaybackController extends Component {
       else {
         response.json()
         .then(newSong => {
-          let time = Number(newSong.item.duration_ms) - Number(newSong.progress_ms)
+
           this.setState({
             song: {
               name: newSong.item.name,
               artists: newSong.item.artists,
               id: newSong.item.id,
               is_playing: newSong.is_playing,
-              time_left: time
+              duration_ms: newSong.item.duration_ms,
+              progress_ms: newSong.progress_ms,
             },
             disabled: false
           })
-        }) 
+        })
       }
     })
-      
-  }
 
-  startPlayback = ()  => {
-    this.setState({
-      disabled: true
-    })
-
-    fetch(backendURI + "startPlayback")
-    .then(
-      setTimeout(this.updateCurrentlyPlaying, 1000)
-    )
   }
 
   songCountdown = () => {
@@ -76,11 +80,9 @@ class PlaybackController extends Component {
 
       let currentState = this.state
 
-      if(currentState.song.time_left !== null) {
-        console.log(this.state)
-        let time = currentState.song.time_left - 1000
-
-        currentState.song.time_left = time
+      if(currentState.song.is_playing) {
+        currentState.song.progress_ms += 1000
+        let time = currentState.song.duration_ms - currentState.song.progress_ms
 
         if(time <= 500) {
           this.updateCurrentlyPlaying()
@@ -91,7 +93,18 @@ class PlaybackController extends Component {
       }
     }, 1000)
   }
-  
+
+  startPlayback = ()  => {
+    this.setState({
+      disabled: true
+    })
+
+    fetch(backendURI + "startPlayback")
+    .then(
+      setTimeout(this.updateCurrentlyPlaying, 1500)
+    )
+  }
+
   stopPlayback = ()  => {
     this.setState({
       disabled: true
@@ -99,7 +112,7 @@ class PlaybackController extends Component {
 
     fetch(backendURI + "stopPlayback")
     .then(
-      setTimeout(this.updateCurrentlyPlaying, 1000)
+      setTimeout(this.updateCurrentlyPlaying, 1500)
     )
   }
 
@@ -135,7 +148,8 @@ class PlaybackController extends Component {
     let artistNames = this.state.song.artists.map(artist => artist.name)
     return (
       <div className='Player'>
-        Currently playing: {artistNames.toString()}: {this.state.song.name}
+        Currently playing {artistNames.toString()}: {this.state.song.name} <br />
+        {msTominutes(this.state.song.progress_ms)}/{msTominutes(this.state.song.duration_ms)}
         {button}
       </div>
     )
