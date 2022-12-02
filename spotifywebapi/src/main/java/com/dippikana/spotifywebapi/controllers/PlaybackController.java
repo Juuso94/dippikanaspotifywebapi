@@ -3,6 +3,7 @@ package com.dippikana.spotifywebapi.controllers;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.Console;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -24,6 +25,8 @@ import org.springframework.web.util.*;
 import org.springframework.web.bind.annotation.*;
 
 import com.dippikana.spotifywebapi.models.PlaybackData;
+import com.dippikana.spotifywebapi.models.QueueResult;
+import com.dippikana.spotifywebapi.models.SearchResult;
 import com.dippikana.spotifywebapi.services.Utilities;
 
 @Component
@@ -36,138 +39,168 @@ public class PlaybackController {
 	@Autowired
 	private Utilities utilities;
 
-  @GetMapping("/currentlyPlaying")
-		public ResponseEntity<Object> fetchCurrentlyPlaying() {
+	@GetMapping("/currentlyPlaying")
+	public ResponseEntity<Object> fetchCurrentlyPlaying() {
 
-			if(!utilities.isTokenValid()) {
+		if(!utilities.isTokenValid()) {
 
-				if(!utilities.refreshAuthenticationToken()) {
-					return new ResponseEntity<Object>("Something went wrong while refreshing the accesstoken", HttpStatus.BAD_REQUEST);
-				}
-			}
-
-			String apiLocation = "/me/player";
-			URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation).build().toUri();
-
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.setBearerAuth(utilities.getAccessToken());
-
-			HttpEntity entity = new HttpEntity<>(headers);
-
-			ResponseEntity<PlaybackData> response = new RestTemplate().exchange(playerURI, HttpMethod.GET, entity, PlaybackData.class);
-			if(response.getStatusCodeValue() == 204) {
-				return new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-			}
-			else {
-				return new ResponseEntity<Object>(response.getBody(), HttpStatus.OK);
+			if(!utilities.refreshAuthenticationToken()) {
+				return new ResponseEntity<Object>("Something went wrong while refreshing the accesstoken", HttpStatus.BAD_REQUEST);
 			}
 		}
 
-		@GetMapping("/startPlayback")
-		public ResponseEntity<Object> resumePlayback(@RequestParam(required = false) String songURI) {
-			String apiLocation = "/me/player/play";
+		String apiLocation = "/me/player";
+		URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation).build().toUri();
 
-			if(!utilities.isTokenValid()) {
-				if(!utilities.refreshAuthenticationToken()) {
-					return new ResponseEntity<Object>("Something went wrong while refreshing the accesstoken", HttpStatus.BAD_REQUEST);
-				}
-			}
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(utilities.getAccessToken());
 
-			URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation).build().toUri();
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.setBearerAuth(utilities.getAccessToken());
+		HttpEntity entity = new HttpEntity<>(headers);
 
-			HttpEntity<Object> entity;
-
-			if( songURI == null) {
-				entity = new HttpEntity<Object>(null, headers);
-			}
-			else {
-				Map<String, String[]> requestBody = new HashMap<String, String[]>();
-				String[] uris  = {songURI};
-				requestBody.put("uris", uris);
-				entity = new HttpEntity<Object>(requestBody, headers);
-			}
-			ResponseEntity<Void> response;
-
-			try {
-				response = new RestTemplate().exchange(playerURI, HttpMethod.PUT, entity, Void.class);
-			}
-			catch (Exception e) {
-				response = null;
-			}
-			
-
-			if(response != null && response.getStatusCodeValue() == 204) {
-				return new ResponseEntity<Object>(null, HttpStatus.OK);
-			}
-			else {
-				return utilities.createErrorResponse(HttpStatus.BAD_REQUEST, "Something went wrong while starting playback");
-			}
-
-			
+		ResponseEntity<PlaybackData> response = new RestTemplate().exchange(playerURI, HttpMethod.GET, entity, PlaybackData.class);
+		if(response.getStatusCodeValue() == 204) {
+			return new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
 		}
+		else {
+			System.out.println(response);
+			return new ResponseEntity<Object>(response.getBody(), HttpStatus.OK);
+		}
+	}
 
-		@GetMapping("/stopPlayback")
-		public ResponseEntity<Object> stopPlayback() {
-			String apiLocation = "/me/player/pause";
+	@GetMapping("/queue")
+	public ResponseEntity<Object> fetchQueue() {
 
-			if(!utilities.isTokenValid()) {
-				utilities.refreshAuthenticationToken();
-			}
+		if(!utilities.isTokenValid()) {
 
-			URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation).build().toUri();
-
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.setBearerAuth(utilities.getAccessToken());
-
-			HttpEntity entity = new HttpEntity<>(null, headers);
-
-			ResponseEntity<Void> response;
-
-			try {
-				response = new RestTemplate().exchange(playerURI, HttpMethod.PUT, entity, Void.class);
-			}
-			catch (Exception e) {
-				response = null;
-			}
-
-			if(response != null && response.getStatusCodeValue() == 204) {
-				return new ResponseEntity<Object>(null, HttpStatus.OK);
-			}
-			else {
-				return utilities.createErrorResponse(HttpStatus.BAD_REQUEST, "Something went wrong while stopping playback");
+			if(!utilities.refreshAuthenticationToken()) {
+				return new ResponseEntity<Object>("Something went wrong while refreshing the accesstoken", HttpStatus.BAD_REQUEST);
 			}
 		}
 
-		@GetMapping("/addToQueue")
-		public ResponseEntity<Object> addToQueue(@RequestParam(name = "songURI") String queryString) {
-			String apiLocation = "/me/player/queue";
+		String apiLocation = "/me/player/queue";
+		URI queueURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation).build().toUri();
 
-			if(!utilities.isTokenValid()) {
-				utilities.refreshAuthenticationToken();
-			}
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(utilities.getAccessToken());
 
-			URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation)
-			.queryParam("uri", queryString)
-			.build().toUri();
+		HttpEntity entity = new HttpEntity<>(headers);
 
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.setBearerAuth(utilities.getAccessToken());
+		ResponseEntity<QueueResult> response = new RestTemplate().exchange(queueURI, HttpMethod.GET, entity, QueueResult.class);
+		if(response.getStatusCodeValue() == 204) {
+			return new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+		}
+		else {
+			System.out.println(response);
+			return new ResponseEntity<Object>(response.getBody(), HttpStatus.OK);
+		}
+	}
 
-			HttpEntity entity = new HttpEntity<>(null, headers);
+	@GetMapping("/startPlayback")
+	public ResponseEntity<Object> resumePlayback(@RequestParam(required = false) String songURI) {
+		String apiLocation = "/me/player/play";
 
-			ResponseEntity<Void> response = new RestTemplate().exchange(playerURI, HttpMethod.POST, entity, Void.class);
-
-			if(response.getStatusCodeValue() == 204) {
-				return new ResponseEntity<Object>(null, HttpStatus.OK);
-			}
-			else {
-				return utilities.createErrorResponse(HttpStatus.BAD_REQUEST, "Something went wrong while adding song to queue");
+		if(!utilities.isTokenValid()) {
+			if(!utilities.refreshAuthenticationToken()) {
+				return new ResponseEntity<Object>("Something went wrong while refreshing the accesstoken", HttpStatus.BAD_REQUEST);
 			}
 		}
+
+		URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation).build().toUri();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(utilities.getAccessToken());
+
+		HttpEntity<Object> entity;
+
+		if( songURI == null) {
+			entity = new HttpEntity<Object>(null, headers);
+		}
+		else {
+			Map<String, String[]> requestBody = new HashMap<String, String[]>();
+			String[] uris  = {songURI};
+			requestBody.put("uris", uris);
+			entity = new HttpEntity<Object>(requestBody, headers);
+		}
+		ResponseEntity<Void> response;
+
+		try {
+			response = new RestTemplate().exchange(playerURI, HttpMethod.PUT, entity, Void.class);
+		}
+		catch (Exception e) {
+			response = null;
+		}
+
+
+		if(response != null && response.getStatusCodeValue() == 204) {
+			return new ResponseEntity<Object>(null, HttpStatus.OK);
+		}
+		else {
+			return utilities.createErrorResponse(HttpStatus.BAD_REQUEST, "Something went wrong while starting playback");
+		}
+
+
+	}
+
+	@GetMapping("/stopPlayback")
+	public ResponseEntity<Object> stopPlayback() {
+		String apiLocation = "/me/player/pause";
+
+		if(!utilities.isTokenValid()) {
+			utilities.refreshAuthenticationToken();
+		}
+
+		URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation).build().toUri();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(utilities.getAccessToken());
+
+		HttpEntity entity = new HttpEntity<>(null, headers);
+
+		ResponseEntity<Void> response;
+
+		try {
+			response = new RestTemplate().exchange(playerURI, HttpMethod.PUT, entity, Void.class);
+		}
+		catch (Exception e) {
+			response = null;
+		}
+
+		if(response != null && response.getStatusCodeValue() == 204) {
+			return new ResponseEntity<Object>(null, HttpStatus.OK);
+		}
+		else {
+			return utilities.createErrorResponse(HttpStatus.BAD_REQUEST, "Something went wrong while stopping playback");
+		}
+	}
+
+	@GetMapping("/addToQueue")
+	public ResponseEntity<Object> addToQueue(@RequestParam(name = "songURI") String queryString) {
+		String apiLocation = "/me/player/queue";
+
+		if(!utilities.isTokenValid()) {
+			utilities.refreshAuthenticationToken();
+		}
+
+		URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation)
+		.queryParam("uri", queryString)
+		.build().toUri();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(utilities.getAccessToken());
+
+		HttpEntity entity = new HttpEntity<>(null, headers);
+
+		ResponseEntity<Void> response = new RestTemplate().exchange(playerURI, HttpMethod.POST, entity, Void.class);
+
+		if(response.getStatusCodeValue() == 204) {
+			return new ResponseEntity<Object>(null, HttpStatus.OK);
+		}
+		else {
+			return utilities.createErrorResponse(HttpStatus.BAD_REQUEST, "Something went wrong while adding song to queue");
+		}
+	}
 }

@@ -2,6 +2,7 @@ import { Component } from 'react';
 import '../App.css';
 import PlaybackController from "./playbackController.js"
 import SearchField from './searchComponent';
+import Queue from './queue';
 
 
 class FrontPage extends Component {
@@ -10,32 +11,34 @@ class FrontPage extends Component {
     this.state = {
       componentId: 1
     }
-    }
+  }
 
-    render() {
-      let component
+  switchComponent = (id) => {
+    this.setState({
+      componentId: id
+    })
+  }
 
-      if(this.state.componentId == 1) {
-        component = SearchField
-      }
 
-      return (
-        <div className='FrontPage'>
-          <div className='Navbar'>
-            <button>haku</button>
-            <button>jono</button>
-          </div>
-          { this.state.componentId === 1 ?
-            <SearchField />
-            : this.state.componentId === 2 ?
-            <div>homopaskaa</div>
-            : null
-          }
+  render() {
 
-          <PlaybackController />
+    return (
+      <div className='FrontPage'>
+        <div className='Navbar'>
+          <button onClick={() => this.switchComponent(1)}>Search</button>
+          <button onClick={() => this.switchComponent(2)}>Queue</button>
         </div>
-      )
-    }
+        { this.state.componentId === 1 ?
+          <SearchField />
+          : this.state.componentId === 2 ?
+          <Queue />
+          : null
+        }
+
+        <PlaybackController />
+      </div>
+    )
+  }
 }
 
 export default FrontPage;

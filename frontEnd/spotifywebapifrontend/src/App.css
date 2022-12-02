@@ -42,19 +42,18 @@
 }
 
 .SearchBar {
-  width: 75%;
   margin: auto;
   text-align: center;
 }
 
 .SearchBar input{
   width: 100%;
-  height: 20px;
+  height: 40px;
   text-align: center;
+  font-size: large;
 }
 
 .ButtonGroup {
-  background-color: #7caf2a;
   width: 100%;
 }
 
@@ -64,5 +63,21 @@
   padding: 10px 24px; /* Some padding */
   cursor: pointer; /* Pointer/hand icon */
   width: 100%; /* Set a width if needed */
+  display: block; /* Make the buttons appear below each other */
+}
+
+.QueueList {
+  text-align: center;
+}
+
+.QueueList ul{
+  background-color: azure;
+  text-align: center;
+
+}
+
+.QueueList li {
+  color: rgb(15, 14, 14);
+  padding: 10px 0px; /* Some padding */
   display: block; /* Make the buttons appear below each other */
 }

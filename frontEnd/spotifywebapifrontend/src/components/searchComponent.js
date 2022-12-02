@@ -13,10 +13,6 @@ class SearchField extends Component {
   }
   searchApi = "search"
 
-  componentDidUpdate() {
-    console.log(this.state)
-  }
-
   handleSearch = (queryParam) => {
 
     const searchQuery = encodeURI("?q=" + queryParam)
@@ -85,7 +81,7 @@ class SearchField extends Component {
         onChange={value => this.handleSearch(value.target.value)}>
         </input>
         <div className="ButtonGroup">
-          {songButtons}
+          {songButtons.splice(0,15)}
         </div>
       </div>
     )
