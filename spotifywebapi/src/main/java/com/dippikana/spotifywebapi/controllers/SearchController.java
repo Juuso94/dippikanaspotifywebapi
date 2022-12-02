@@ -42,7 +42,6 @@ public class SearchController {
 					return new ResponseEntity<Object>("Something went wrong while refreshing the accesstoken", HttpStatus.BAD_REQUEST);
 				}
 			}
-
 			String apiLocation = "/search";
 			URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation)
       .queryParam("q", queryString)
@@ -59,13 +58,14 @@ public class SearchController {
 				response = new RestTemplate().exchange(playerURI, HttpMethod.GET, entity, SearchResult.class);
 			}
 			catch (Exception e) {
+				System.out.println(e.toString());
 				response = null;
 			}
-			
-			
+
+
 			if( response!= null && response.getStatusCodeValue() == 200) {
 				return new ResponseEntity<Object>(response.getBody(), HttpStatus.OK);
-			}	
+			}
 			else {
 				return utilities.createErrorResponse(HttpStatus.BAD_REQUEST, "Something went wrong with search");
 			}

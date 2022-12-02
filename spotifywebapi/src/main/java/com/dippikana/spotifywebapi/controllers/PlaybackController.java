@@ -1,12 +1,9 @@
 package com.dippikana.spotifywebapi.controllers;
 
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.io.Console;
 import java.net.URI;
-import java.sql.Timestamp;
-import java.time.Instant;
+
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.dippikana.spotifywebapi.models.PlaybackData;
 import com.dippikana.spotifywebapi.models.QueueResult;
-import com.dippikana.spotifywebapi.models.SearchResult;
+import com.dippikana.spotifywebapi.models.Devices;
 import com.dippikana.spotifywebapi.services.Utilities;
 
 @Component
@@ -35,6 +32,7 @@ import com.dippikana.spotifywebapi.services.Utilities;
 public class PlaybackController {
 
   private String apiUrl = "https://api.spotify.com/v1";
+	private String latestSongId = "";
 
 	@Autowired
 	private Utilities utilities;
@@ -63,7 +61,6 @@ public class PlaybackController {
 			return new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
 		}
 		else {
-			System.out.println(response);
 			return new ResponseEntity<Object>(response.getBody(), HttpStatus.OK);
 		}
 	}
@@ -88,17 +85,48 @@ public class PlaybackController {
 		HttpEntity entity = new HttpEntity<>(headers);
 
 		ResponseEntity<QueueResult> response = new RestTemplate().exchange(queueURI, HttpMethod.GET, entity, QueueResult.class);
-		if(response.getStatusCodeValue() == 204) {
-			return new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+		if(response.getStatusCodeValue() == 200) {
+			Map<String, Object> responseData = new HashMap<String, Object>();
+			responseData.put("queue", response.getBody().queue);
+			responseData.put("songID", latestSongId);
+			return new ResponseEntity<Object>(responseData, HttpStatus.OK);
+		}
+		else {
+			return utilities.createErrorResponse(HttpStatus.BAD_REQUEST, "Something went wrong with fetching queue");
+		}
+	}
+
+	@GetMapping("/devices")
+	public ResponseEntity<Object> fetchDevices() {
+
+		if(!utilities.isTokenValid()) {
+
+			if(!utilities.refreshAuthenticationToken()) {
+				return new ResponseEntity<Object>("Something went wrong while refreshing the accesstoken", HttpStatus.BAD_REQUEST);
+			}
+		}
+
+		String apiLocation = "/me/player/devices";
+		URI queueURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation).build().toUri();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(utilities.getAccessToken());
+
+		HttpEntity entity = new HttpEntity<>(headers);
+
+		ResponseEntity<Devices> response = new RestTemplate().exchange(queueURI, HttpMethod.GET, entity, Devices.class);
+		if(response.getStatusCodeValue() == 200) {
+			return new ResponseEntity<Object>(response.getBody(), HttpStatus.OK);
 		}
 		else {
 			System.out.println(response);
-			return new ResponseEntity<Object>(response.getBody(), HttpStatus.OK);
+			return utilities.createErrorResponse(HttpStatus.BAD_REQUEST, "Something went wrong with fetching devices");
 		}
 	}
 
 	@GetMapping("/startPlayback")
-	public ResponseEntity<Object> resumePlayback(@RequestParam(required = false) String songURI) {
+	public ResponseEntity<Object> resumePlayback(@RequestParam(required = false) String deviceID) {
 		String apiLocation = "/me/player/play";
 
 		if(!utilities.isTokenValid()) {
@@ -107,21 +135,20 @@ public class PlaybackController {
 			}
 		}
 
-		URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation).build().toUri();
+		URI playerURI;
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.setBearerAuth(utilities.getAccessToken());
 
-		HttpEntity<Object> entity;
+		HttpEntity<Object> entity = new HttpEntity<Object>(null, headers);;
 
-		if( songURI == null) {
-			entity = new HttpEntity<Object>(null, headers);
+		if( deviceID == null) {
+			playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation).build().toUri();
 		}
 		else {
-			Map<String, String[]> requestBody = new HashMap<String, String[]>();
-			String[] uris  = {songURI};
-			requestBody.put("uris", uris);
-			entity = new HttpEntity<Object>(requestBody, headers);
+			playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation)
+			.queryParam("device_id", deviceID)
+			.build().toUri();
 		}
 		ResponseEntity<Void> response;
 
@@ -177,7 +204,7 @@ public class PlaybackController {
 	}
 
 	@GetMapping("/addToQueue")
-	public ResponseEntity<Object> addToQueue(@RequestParam(name = "songURI") String queryString) {
+	public ResponseEntity<Object> addToQueue(@RequestParam(name = "songURI") String songUriString, @RequestParam(name = "songID") String idString) {
 		String apiLocation = "/me/player/queue";
 
 		if(!utilities.isTokenValid()) {
@@ -185,7 +212,7 @@ public class PlaybackController {
 		}
 
 		URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation)
-		.queryParam("uri", queryString)
+		.queryParam("uri", songUriString)
 		.build().toUri();
 
 		HttpHeaders headers = new HttpHeaders();
@@ -197,6 +224,7 @@ public class PlaybackController {
 		ResponseEntity<Void> response = new RestTemplate().exchange(playerURI, HttpMethod.POST, entity, Void.class);
 
 		if(response.getStatusCodeValue() == 204) {
+			latestSongId = idString;
 			return new ResponseEntity<Object>(null, HttpStatus.OK);
 		}
 		else {

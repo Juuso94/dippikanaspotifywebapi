@@ -1,6 +1,6 @@
 import '../App.css';
 import React, { Component } from 'react';
-import {addSongToQueue, backendURI} from "../HelperFunctions.js"
+import {msTominutes, backendURI} from "../HelperFunctions.js"
 
 class SearchField extends Component {
   constructor() {
@@ -53,9 +53,9 @@ class SearchField extends Component {
     }
   }
 
-  addSongToQueue =(id) => {
+  addSongToQueue =(uri, id) => {
     const queueApi = "addToQueue"
-    const queryParam = encodeURI("?songURI=" + id)
+    const queryParam = encodeURI("?songURI=" + uri + "&songID=" + id)
     fetch(backendURI + queueApi + queryParam)
       .then(response => {
         if(response.status === 400) {
@@ -76,7 +76,7 @@ class SearchField extends Component {
     })
     return (
       <div className="SearchBar">
-        <h1 style={{color: 'white'}}>Hae biisejä </h1>
+        <h1 style={{color: 'white'}}>Search and add songs to queue</h1>
         <input type = "text" value={this.state.searchValue} id = "queryParam" name = "queryParam" placeholder='Search for artists or songs'
         onChange={value => this.handleSearch(value.target.value)}>
         </input>
@@ -92,8 +92,9 @@ class SearchField extends Component {
 function SongButton(props) {
   let artistNames = props.songInfo.artists.map(artist => artist.name)
   return (
-    <button onClick={() => {if (window.confirm("Haluatko lisätä biisin " + props.songInfo.name + " jonoon")) props.onClick(props.songInfo.uri)}} >
-      {artistNames.toString()}: {props.songInfo.name} </button>
+    <button onClick={() => {if (window.confirm("Haluatko lisätä biisin " + props.songInfo.name + " jonoon"))
+      props.onClick(props.songInfo.uri, props.songInfo.id)}}>
+      {artistNames.toString()}: {props.songInfo.name} {msTominutes(props.songInfo.duration_ms)}</button>
   );
 }
 

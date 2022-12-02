@@ -1,35 +1,35 @@
 
 .FrontPage {
   background-color: #3d3d3d;
-  min-width: 100vh;
   min-height: 100vh;
 }
 
 .Navbar{
-  height: 50px;
   width: 100%;
-  top: 0px;
   text-align: center;
-  display: inline-block;
 }
 
 .Navbar button{
   background-color: #7caf2a;
   width: 25%;
   cursor: pointer; /* Pointer/hand icon */
-  height: auto;
-  display: inline;
+}
+
+.Playerbar {
+  background-color: #446068;
+  margin: auto;
+  width: 100%;
+  position: fixed;
+  bottom: 0px;
+  height: 75px;
+  display: inline-block;
 }
 
 .Player {
-  background-color: #446068;
-  display: block;
-  margin: auto;
-  width: 100%;
   text-align: center;
-  height: 75px;
-  position: fixed;
-  bottom: 0px;
+  width: 80%;
+  display: inline-block;
+  margin: auto;
 }
 
 .Player button{
@@ -41,12 +41,26 @@
   height: auto;
 }
 
+.Devices {
+  float: left;
+  width: 10%;
+  height: 100%;
+}
+
+.Devices button{
+  height: 100%;
+  width: 100%;
+
+}
+
 .SearchBar {
   margin: auto;
   text-align: center;
+  width: 50%;
 }
 
 .SearchBar input{
+  box-sizing: border-box;
   width: 100%;
   height: 40px;
   text-align: center;
@@ -55,6 +69,8 @@
 
 .ButtonGroup {
   width: 100%;
+  align-items: center;
+  margin: auto;
 }
 
 .ButtonGroup button {
@@ -64,19 +80,26 @@
   cursor: pointer; /* Pointer/hand icon */
   width: 100%; /* Set a width if needed */
   display: block; /* Make the buttons appear below each other */
+  background-color: azure;
 }
 
 .QueueList {
+  width: 50%;
   text-align: center;
+  margin: auto;
 }
 
 .QueueList ul{
+  padding: 0;
+  list-style: none;
   background-color: azure;
   text-align: center;
-
+  width: 100%;
+  display: inline-block;
 }
 
 .QueueList li {
+  border: 1px solid rgb(0, 0, 0); /* Green border */
   color: rgb(15, 14, 14);
   padding: 10px 0px; /* Some padding */
   display: block; /* Make the buttons appear below each other */

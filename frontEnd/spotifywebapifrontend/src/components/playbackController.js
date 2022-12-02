@@ -11,6 +11,7 @@ class PlaybackController extends Component {
         artists: [],
         id: null,
         is_playing : false,
+        is_active: false,
         duration_ms: null,
         progress_ms: null,
       },
@@ -19,9 +20,12 @@ class PlaybackController extends Component {
 
   }
 
+  devices = [];
+
   componentDidMount() {
     this.updateCurrentlyPlaying()
     this.songCountdown()
+    this.fetchDevices()
   }
 
   updateCurrentlyPlaying = () => {
@@ -37,6 +41,7 @@ class PlaybackController extends Component {
             is_playing : false,
             duration_ms: null,
             progress_ms: null,
+            is_active: false
           },
           disabled: false
         })
@@ -50,6 +55,7 @@ class PlaybackController extends Component {
             is_playing : false,
             duration_ms: null,
             progress_ms: null,
+            is_active: false
           },
           disabled: false
         })
@@ -66,6 +72,7 @@ class PlaybackController extends Component {
               is_playing: newSong.is_playing,
               duration_ms: newSong.item.duration_ms,
               progress_ms: newSong.progress_ms,
+              is_active: true
             },
             disabled: false
           })
@@ -75,11 +82,22 @@ class PlaybackController extends Component {
 
   }
 
+  fetchDevices = () => {
+    fetch(backendURI + "devices")
+    .then(response => {
+      if(response.status === 200) {
+        response.json()
+          .then(devicesObject => {
+            this.devices = devicesObject.devices
+          })
+      }
+   })
+  }
+
   songCountdown = () => {
     setInterval(() => {
 
       let currentState = this.state
-
       if(currentState.song.is_playing) {
         currentState.song.progress_ms += 1000
         let time = currentState.song.duration_ms - currentState.song.progress_ms
@@ -98,8 +116,18 @@ class PlaybackController extends Component {
     this.setState({
       disabled: true
     })
+    console.log(this.devices)
+    let url
 
-    fetch(backendURI + "startPlayback")
+    if(!this.state.song.is_playing) {
+      let queryParam = encodeURI("?deviceID=" + this.devices[0].id)
+      url = backendURI + "startPlayback" + queryParam
+    }
+    else {
+      url = backendURI + "startPlayback"
+    }
+
+    fetch(url)
     .then(
       setTimeout(this.updateCurrentlyPlaying, 1500)
     )
@@ -147,10 +175,16 @@ class PlaybackController extends Component {
     }
     let artistNames = this.state.song.artists.map(artist => artist.name)
     return (
+      <div className='Playerbar'>
       <div className='Player'>
         Currently playing {artistNames.toString()}: {this.state.song.name} <br />
         {msTominutes(this.state.song.progress_ms)}/{msTominutes(this.state.song.duration_ms)}
         {button}
+      </div>
+      <div className='Devices'>
+        <button>Available Devices</button>
+      </div>
+
       </div>
     )
   }
