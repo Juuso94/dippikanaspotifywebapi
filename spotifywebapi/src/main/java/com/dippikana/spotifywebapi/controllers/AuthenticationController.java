@@ -32,83 +32,83 @@ import com.dippikana.spotifywebapi.services.Utilities;
 //@RequestMapping("/admin")
 public class AuthenticationController {
 
-	@Autowired
-	private Utilities utilities;
+  @Autowired
+  private Utilities utilities;
 
-	@Value("${spotify.client_id}")
-	private String client_id;
+  @Value("${spotify.client_id}")
+  private String client_id;
 
-	@Value("${spotify.client_secret}")
-	private String client_secret;
+  @Value("${spotify.client_secret}")
+  private String client_secret;
 
-	@Value("${spotify.callback}")
-	private String callback;
+  @Value("${spotify.callback}")
+  private String callback;
 
-	@Value("${frontend}")
-	private String frontendURI;
+  @Value("${frontend}")
+  private String frontendURI;
 
-	@Value("${tymaPassu}")
-	private String tymapassu;
+  @Value("${tymaPassu}")
+  private String tymapassu;
 
-	@GetMapping("/")
-	public String index() {
-		return "Greetings from Spring Boot!";
-	}
+  @GetMapping("/")
+  public String index() {
+    return "Greetings from Spring Boot!";
+  }
 
   @GetMapping("/login")
-	public String loginToSpotify(@RequestParam(value = "kekW", defaultValue = "nicenice")String passu) {
+  public String loginToSpotify(@RequestParam(value = "kekW", defaultValue = "nicenice")String passu) {
 
-		if(!passu.equals(tymapassu)) {
-			return "vitun pelle kuole";
-		}
+    if(!passu.equals(tymapassu)) {
+      return "vitun pelle kuole";
+    }
     String permissionScope = "streaming user-read-playback-state";
-		String spotifyLoginUrl = "https://accounts.spotify.com/authorize/";
-		String fullUrl = UriComponentsBuilder.fromUriString(spotifyLoginUrl).
-		queryParam("scope", permissionScope).
-		queryParam("client_id", client_id).
-		queryParam("redirect_uri", callback).
-		queryParam("response_type", "code").build().toUriString();
+    String spotifyLoginUrl = "https://accounts.spotify.com/authorize/";
+    String fullUrl = UriComponentsBuilder.fromUriString(spotifyLoginUrl).
+    queryParam("scope", permissionScope).
+    queryParam("client_id", client_id).
+    queryParam("redirect_uri", callback).
+    queryParam("response_type", "code").build().toUriString();
 
-		return fullUrl;
-	}
+    return fullUrl;
+  }
 
-	@GetMapping("/auth/callback")
-	public RedirectView callback(@RequestParam(value = "code", defaultValue = "nicenice")String code) {
+  @GetMapping("/auth/callback")
+  public RedirectView callback(@RequestParam(value = "code", defaultValue = "nicenice")String code) {
 
-		Timestamp now = Timestamp.from(Instant.now());
+    Timestamp now = Timestamp.from(Instant.now());
 
-		MultiValueMap<String, String> formValues = new LinkedMultiValueMap<String, String>();
-		String auth = client_id + ":" + client_secret;
-		String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
+    MultiValueMap<String, String> formValues = new LinkedMultiValueMap<String, String>();
+    String auth = client_id + ":" + client_secret;
+    String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
 
-		formValues.add("code", code);
-		formValues.add("redirect_uri", callback);
-		formValues.add("grant_type", "authorization_code");
+    formValues.add("code", code);
+    formValues.add("redirect_uri", callback);
+    formValues.add("grant_type", "authorization_code");
 
-		URI spotifyTokenUrl = UriComponentsBuilder.fromUriString("https://accounts.spotify.com/api/token").build().toUri();
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		headers.setBasicAuth(encodedAuth);
+    URI spotifyTokenUrl = UriComponentsBuilder.fromUriString("https://accounts.spotify.com/api/token").build().toUri();
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    headers.setBasicAuth(encodedAuth);
 
-		HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<MultiValueMap<String, String>>(formValues, headers);
+    HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<MultiValueMap<String, String>>(formValues, headers);
 
-		ResponseEntity<TokenResponse> response = new RestTemplate().postForEntity(spotifyTokenUrl, entity, TokenResponse.class);
-		TokenResponse resBody = response.getBody();
+    ResponseEntity<TokenResponse> response = new RestTemplate().postForEntity(spotifyTokenUrl, entity, TokenResponse.class);
+    TokenResponse resBody = response.getBody();
 
-		if(response.getStatusCodeValue() == 200) {
-			utilities.setAccessToken(resBody.access_token);
-			utilities.setRefreshToken(resBody.refresh_token);
-			utilities.setExpireTime(now.getTime() + (resBody.expires_in * 1000));
+    if(response.getStatusCodeValue() == 200) {
+      utilities.setAccessToken(resBody.access_token);
+      utilities.setRefreshToken(resBody.refresh_token);
+      utilities.setExpireTime(now.getTime() + (resBody.expires_in * 1000));
 
-			return new RedirectView(frontendURI);
-		}
-		else {
-			return new RedirectView(frontendURI + "admin");
-		}
+      return new RedirectView(frontendURI);
+    }
+    else {
+      return new RedirectView(frontendURI + "admin");
+    }
 
-	}
+  }
 
-	@GetMapping("/checkToken")
+  @GetMapping("/checkToken")
   public ResponseEntity<Object> checkTokenValidity() {
 
     if(utilities.isTokenValid()) {
@@ -119,11 +119,11 @@ public class AuthenticationController {
     }
   }
 
-	@GetMapping("logout")
-	public ResponseEntity<Object> clearTokens() {
-		utilities.setAccessToken("");
-		utilities.setRefreshToken("");
-		utilities.setExpireTime(Long.valueOf(0));
+  @GetMapping("logout")
+  public ResponseEntity<Object> clearTokens() {
+    utilities.setAccessToken("");
+    utilities.setRefreshToken("");
+    utilities.setExpireTime(Long.valueOf(0));
 
     return new ResponseEntity<Object>(null, HttpStatus.OK);
   }

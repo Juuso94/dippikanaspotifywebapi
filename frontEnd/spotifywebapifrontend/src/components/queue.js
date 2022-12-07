@@ -55,7 +55,7 @@ class Queue extends Component {
     }
     else if(index === -1) {
       addedSongs = []
-      defaultSongs = this.state.songs.slice(0, 11).map( song => {
+      defaultSongs = this.state.songs.slice(0, 10).map( song => {
         let props = {songInfo: song}
         return ListItem(props)
       })

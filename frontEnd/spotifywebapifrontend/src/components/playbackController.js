@@ -181,9 +181,9 @@ class PlaybackController extends Component {
         {msTominutes(this.state.song.progress_ms)}/{msTominutes(this.state.song.duration_ms)}
         {button}
       </div>
-      <div className='Devices'>
-        <button>Available Devices</button>
-      </div>
+//      <div className='Devices'>
+//        <button>Available Devices</button>
+//      </div>
 
       </div>
     )

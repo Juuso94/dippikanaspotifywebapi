@@ -2,6 +2,7 @@ package com.dippikana.spotifywebapi.controllers;
 
 import java.util.Base64;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.time.Instant;
 
@@ -30,44 +31,44 @@ import com.dippikana.spotifywebapi.services.Utilities;
 //@RequestMapping("/api")
 public class SearchController {
 
-	@Autowired
-	private Utilities utilities;
+  @Autowired
+  private Utilities utilities;
   private String apiUrl = "https://api.spotify.com/v1";
 
   @GetMapping("/search")
-		public ResponseEntity<Object> searchSongs(@RequestParam(name = "q") String queryString) {
+    public ResponseEntity<Object> searchSongs(@RequestParam(name = "q") String queryString) {
 
-			if(!utilities.isTokenValid()) {
-				if(!utilities.refreshAuthenticationToken()) {
-					return new ResponseEntity<Object>("Something went wrong while refreshing the accesstoken", HttpStatus.BAD_REQUEST);
-				}
-			}
-			String apiLocation = "/search";
-			URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation)
+      if(!utilities.isTokenValid()) {
+        if(!utilities.refreshAuthenticationToken()) {
+          return new ResponseEntity<Object>("Something went wrong while refreshing the accesstoken", HttpStatus.BAD_REQUEST);
+        }
+      }
+      String apiLocation = "/search";
+      URI playerURI = UriComponentsBuilder.fromUriString(apiUrl + apiLocation)
       .queryParam("q", queryString)
-      .queryParam("type", "track")
+      .queryParam("type", "track").encode()
       .build().toUri();
 
-			HttpHeaders headers = new HttpHeaders();
-			headers.setBearerAuth(utilities.getAccessToken());
+      HttpHeaders headers = new HttpHeaders();
+      headers.setBearerAuth(utilities.getAccessToken());
 
-			HttpEntity entity = new HttpEntity<>(headers);
-			ResponseEntity<SearchResult> response;
+      HttpEntity entity = new HttpEntity<>(headers);
+      ResponseEntity<SearchResult> response;
 
-			try {
-				response = new RestTemplate().exchange(playerURI, HttpMethod.GET, entity, SearchResult.class);
-			}
-			catch (Exception e) {
-				System.out.println(e.toString());
-				response = null;
-			}
+      try {
+        response = new RestTemplate().exchange(playerURI, HttpMethod.GET, entity, SearchResult.class);
+      }
+      catch (Exception e) {
+        System.out.println(e.toString());
+        response = null;
+      }
 
 
-			if( response!= null && response.getStatusCodeValue() == 200) {
-				return new ResponseEntity<Object>(response.getBody(), HttpStatus.OK);
-			}
-			else {
-				return utilities.createErrorResponse(HttpStatus.BAD_REQUEST, "Something went wrong with search");
-			}
-		}
+      if( response!= null && response.getStatusCodeValue() == 200) {
+        return new ResponseEntity<Object>(response.getBody(), HttpStatus.OK);
+      }
+      else {
+        return utilities.createErrorResponse(HttpStatus.BAD_REQUEST, "Something went wrong with search");
+      }
+    }
 }
