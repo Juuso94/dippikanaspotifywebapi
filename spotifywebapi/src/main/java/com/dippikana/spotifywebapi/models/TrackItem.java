@@ -7,6 +7,7 @@ public class TrackItem {
   public String id;
   public Long duration_ms;
   public ArrayList<ArtistItem> artists;
+  public AlbumItem album;
   public String uri;
 
   public TrackItem(){ }

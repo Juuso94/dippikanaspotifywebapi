@@ -74,18 +74,22 @@
 .ButtonGroup {
   width: 100%;
   align-items: center;
-  margin: auto;
 }
 
 .ButtonGroup button {
   border: 1px solid rgb(0, 0, 0); /* Green border */
   color: rgb(15, 14, 14); /* White text */
-  padding: 10px 24px; /* Some padding */
-  height: 50px;
+  height: 100px;
   cursor: pointer; /* Pointer/hand icon */
   width: 100%; /* Set a width if needed */
-  display: block; /* Make the buttons appear below each other */
+  display: flex; /* Make the buttons appear below each other */
+  align-items: center;
+  justify-content: center;
   background-color: azure;
+}
+
+.ButtonGroup button img {
+  padding: 0px 50px;
 }
 
 .QueueList {

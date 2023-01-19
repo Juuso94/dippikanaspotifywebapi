@@ -19,7 +19,7 @@ public class SpotifywebapiApplication {
     return new WebMvcConfigurer() {
       @Override
       public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedOrigins("http://localhost:3000", "https://dippispotify.azurewebsites.net");
+        registry.addMapping("/**").allowedOrigins("http://localhost:3000", "https://dippispotify.azurewebsites.net", "http://192.168.212.36:3000");
       }
     };
   }

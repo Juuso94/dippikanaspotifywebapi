@@ -92,9 +92,11 @@ class SearchField extends Component {
 function SongButton(props) {
   let artistNames = props.songInfo.artists.map(artist => artist.name)
   return (
-    <button onClick={() => {if (window.confirm("Haluatko lisätä biisin " + props.songInfo.name + " jonoon"))
+    <button key={props.songInfo.id} onClick={() => {if (window.confirm("Haluatko lisätä biisin " + props.songInfo.name + " jonoon"))
       props.onClick(props.songInfo.uri, props.songInfo.id)}}>
-      {artistNames.toString()}: {props.songInfo.name} {msTominutes(props.songInfo.duration_ms)}</button>
+      <span>{artistNames.toString()}: {props.songInfo.name} {msTominutes(props.songInfo.duration_ms)}</span>
+      <img src={props.songInfo.album.images[2].url} />
+    </button>
   );
 }
 
