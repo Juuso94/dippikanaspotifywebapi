@@ -82,7 +82,7 @@
   height: 100px;
   cursor: pointer; /* Pointer/hand icon */
   width: 100%; /* Set a width if needed */
-  display: flex; /* Make the buttons appear below each other */
+  display: flex;
   align-items: center;
   justify-content: center;
   background-color: azure;
@@ -112,6 +112,12 @@
   border: 1px solid rgb(0, 0, 0); /* Green border */
   color: rgb(15, 14, 14);
   padding: 10px 0px; /* Some padding */
-  height: 50px;
-  display: block; /* Make the buttons appear below each other */
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.QueueList li img {
+  padding: 0px 50px;
 }

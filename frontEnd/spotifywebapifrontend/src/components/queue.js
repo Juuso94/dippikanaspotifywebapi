@@ -94,7 +94,10 @@ class Queue extends Component {
 function ListItem(props) {
   let artistNames = props.songInfo.artists.map(artist => artist.name)
   return (
-    <li key={props.songInfo.id}>{} {artistNames.toString()}: {props.songInfo.name} {msTominutes(props.songInfo.duration_ms)}</li>
+    <li key={props.songInfo.id}>
+      <span>{artistNames.toString()}: {props.songInfo.name} {msTominutes(props.songInfo.duration_ms)}</span>
+      <img src={props.songInfo.album.images[2].url} />
+    </li>
   );
 }
 
